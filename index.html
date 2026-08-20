@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickCaptcha Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .demo-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .demo-section h3 {
+            color: #333;
+            margin: 25px 0 15px 0;
+            font-size: 1.3em;
+        }
+
+        .demo-section p {
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .captcha-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .grid-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+
+        .grid-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .analytics-panel {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .analytics-panel h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .analytics-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .analytics-item:last-child {
+            border-bottom: none;
+        }
+
+        .theme-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .theme-toggle button {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .dark-mode {
+            background: #1a1a2e;
+            color: #eaeaea;
+        }
+
+        .dark-mode .demo-section {
+            background: #16213e;
+            color: #eaeaea;
+        }
+
+        .dark-mode .demo-section h2 {
+            color: #e94560;
+            border-bottom-color: #e94560;
+        }
+
+        .dark-mode .demo-section h3 {
+            color: #eaeaea;
+        }
+
+        .dark-mode .demo-section p {
+            color: #a0a0a0;
+        }
+
+        .dark-mode .code-block {
+            background: #0f3460;
+            border-color: #e94560;
+            color: #eaeaea;
+        }
+
+        .dark-mode .form-group label {
+            color: #eaeaea;
+        }
+
+        .dark-mode .form-group input,
+        .dark-mode .form-group textarea {
+            background: #0f3460;
+            border-color: #e94560;
+            color: #eaeaea;
+        }
+
+        .dark-mode .captcha-container {
+            background: #0f3460;
+        }
+
+        .dark-mode .grid-item {
+            background: #0f3460;
+            border-color: #e94560;
+        }
+
+        .dark-mode .analytics-panel {
+            background: #0f3460;
+            border-color: #e94560;
+        }
+
+        .dark-mode .analytics-item {
+            border-bottom-color: #e94560;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .demo-section {
+                padding: 20px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>QuickCaptcha Demo</h1>
+        <p>A fully client-side, embeddable CAPTCHA widget</p>
+    </header>
+
+    <div class="container">
+        <!-- Theme Toggle -->
+        <div class="theme-toggle">
+            <button onclick="setTheme('light')">Light Theme</button>
+            <button onclick="setTheme('dark')">Dark Theme</button>
+        </div>
+
+        <!-- Basic Usage Section -->
+        <section class="demo-section">
+            <h2>Basic Usage</h2>
+            <p>The simplest way to use QuickCaptcha is to add the <code>data-quickcaptcha</code> attribute to any element:</p>
+            
+            <div class="code-block">
+&lt;div data-quickcaptcha&gt;&lt;/div&gt;
+            </div>
+
+            <div class="captcha-container">
+                <div data-quickcaptcha></div>
+            </div>
+
+            <div id="basic-status" class="status-message"></div>
+        </section>
+
+        <!-- Login Form Section -->
+        <section class="demo-section">
+            <h2>Login Form Integration</h2>
+            <p>Complete example of integrating QuickCaptcha with a login form:</p>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <div data-quickcaptcha data-theme="light"></div>
+                
+                <button type="submit" id="login-submit" disabled>Login</button>
+            </form>
+
+            <div id="login-status" class="status-message"></div>
+        </section>
+
+        <!-- Comment Box Section -->
+        <section class="demo-section">
+            <h2>Comment Box Integration</h2>
+            <p>Example with a comment form and dark theme:</p>
+
+            <div class="form-group">
+                <label for="comment-text">Write your comment:</label>
+                <textarea id="comment-text" rows="4" placeholder="Share your thoughts..."></textarea>
+            </div>
+            
+            <div data-quickcaptcha 
+                 data-theme="dark" 
+                 data-size="small"
+                 data-language="en">
+            </div>
+            
+            <button id="post-comment" disabled>Post Comment</button>
+
+            <div id="comment-status" class="status-message"></div>
+        </section>
+
+        <!-- Multiple Captchas Section -->
+        <section class="demo-section">
+            <h2>Multiple CAPTCHAs</h2>
+            <p>You can have multiple CAPTCHAs on a single page with different configurations:</p>
+
+            <div class="grid">
+                <div class="grid-item">
+                    <h4>Light Theme, Math Challenge</h4>
+                    <div data-quickcaptcha data-theme="light" data-challenge-type="math"></div>
+                    <div id="multi-status-1" class="status-message"></div>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Dark Theme, Click Challenge</h4>
+                    <div data-quickcaptcha data-theme="dark" data-challenge-type="click"></div>
+                    <div id="multi-status-2" class="status-message"></div>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Light Theme, Pattern Challenge</h4>
+                    <div data-quickcaptcha data-theme="light" data-challenge-type="pattern"></div>
+                    <div id="multi-status-3" class="status-message"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Different Sizes Section -->
+        <section class="demo-section">
+            <h2>Different Sizes</h2>
+            <p>QuickCaptcha comes in three sizes: small, normal (default), and large:</p>
+
+            <div class="grid">
+                <div class="grid-item">
+                    <h4>Small Size</h4>
+                    <div data-quickcaptcha data-size="small"></div>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Normal Size (Default)</h4>
+                    <div data-quickcaptcha data-size="normal"></div>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Large Size</h4>
+                    <div data-quickcaptcha data-size="large"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Different Languages Section -->
+        <section class="demo-section">
+            <h2>Multi-Language Support</h2>
+            <p>QuickCaptcha supports 6 languages out of the box:</p>
+
+            <div class="grid">
+                <div class="grid-item">
+                    <h4>English</h4>
+                    <div data-quickcaptcha data-language="en"></div>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Spanish</h4>
+                    <div data-quickcaptcha data-language="es"></div>
+                </div>
+
+                <div class="grid-item">
+                    <h4>French</h4>
+                    <div data-quickcaptcha data-language="fr"></div>
+                </div>
+
+                <div class="grid-item">
+                    <h4>German</h4>
+                    <div data-quickcaptcha data-language="de"></div>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Japanese</h4>
+                    <div data-quickcaptcha data-language="ja"></div>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Chinese</h4>
+                    <div data-quickcaptcha data-language="zh"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section class="demo-section">
+            <h2>Analytics Integration</h2>
+            <p>Track verification attempts with the analytics callback:</p>
+
+            <div data-quickcaptcha data-challenge-type="math" id="analytics-captcha"></div>
+
+            <div class="analytics-panel">
+                <h4>Analytics Data (Live)</h4>
+                <div id="analytics-data">
+                    <div class="analytics-item">Complete a CAPTCHA to see analytics data...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Examples Section -->
+        <section class="demo-section">
+            <h2>API Methods</h2>
+            <p>Demonstration of various API methods:</p>
+
+            <div class="grid">
+                <div class="grid-item">
+                    <h4>Manual Reset</h4>
+                    <div data-quickcaptcha id="reset-captcha"></div>
+                    <button onclick="resetCaptcha()" style="margin-top: 10px;">Reset CAPTCHA</button>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Rate Limiting Demo</h4>
+                    <div data-quickcaptcha 
+                         id="rate-limit-captcha"
+                         data-max-attempts="2"
+                         data-cooldown="3000">
+                    </div>
+                    <p style="font-size: 12px; margin-top: 10px;">Try failing 2 times to see rate limiting in action.</p>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Programmatic Creation</h4>
+                    <div id="programmatic-container"></div>
+                    <button onclick="createProgrammaticCaptcha()" style="margin-top: 10px;">Create CAPTCHA</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Accessibility Section -->
+        <section class="demo-section">
+            <h2>Accessibility Features</h2>
+            <p>QuickCaptcha is fully accessible with keyboard navigation and screen reader support:</p>
+
+            <div class="code-block">
+Keyboard Controls:
+• Tab - Navigate to CAPTCHA widget
+• Enter/Space - Activate verification
+• Escape - Close challenge modal
+• Tab - Navigate between options
+            </div>
+
+            <div data-quickcaptcha 
+                 data-theme="light" 
+                 data-size="large"
+                 aria-label="Accessible CAPTCHA demonstration">
+            </div>
+
+            <p style="margin-top: 15px;"><strong>Try it:</strong> Use Tab to navigate to the CAPTCHA, press Enter or Space to activate, and use keyboard to complete the challenge.</p>
+        </section>
+    </div>
+
+    <!-- Load QuickCaptcha -->
+    <script src="quickcaptcha.js"></script>
+
+    <script>
+        // Theme toggle
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        // Basic usage example
+        const basicCaptcha = QuickCaptcha.get('quickcaptcha-1');
+        if (basicCaptcha) {
+            basicCaptcha.onVerify(function(isVerified) {
+                const statusEl = document.getElementById('basic-status');
+                statusEl.style.display = 'block';
+                if (isVerified) {
+                    statusEl.className = 'status-message success';
+                    statusEl.textContent = '✓ Basic CAPTCHA verified successfully!';
+                } else {
+                    statusEl.className = 'status-message error';
+                    statusEl.textContent = '✗ Verification failed';
+                }
+            });
+        }
+
+        // Login form example
+        let loginVerified = false;
+        const loginCaptcha = QuickCaptcha.get('quickcaptcha-2');
+        if (loginCaptcha) {
+            loginCaptcha.onVerify(function(isVerified) {
+                loginVerified = isVerified;
+                document.getElementById('login-submit').disabled = !isVerified;
+            });
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const statusEl = document.getElementById('login-status');
+            statusEl.style.display = 'block';
+            
+            if (loginVerified) {
+                const username = document.getElementById('username').value;
+                statusEl.className = 'status-message success';
+                statusEl.textContent = `✓ Login form submitted for user: ${username}`;
+            } else {
+                statusEl.className = 'status-message error';
+                statusEl.textContent = '✗ Please complete the CAPTCHA verification';
+            }
+        });
+
+        // Comment box example
+        let commentVerified = false;
+        const commentCaptcha = QuickCaptcha.get('quickcaptcha-3');
+        if (commentCaptcha) {
+            commentCaptcha.onVerify(function(isVerified) {
+                commentVerified = isVerified;
+                updateCommentButton();
+            });
+        }
+
+        document.getElementById('comment-text').addEventListener('input', updateCommentButton);
+
+        function updateCommentButton() {
+            const hasText = document.getElementById('comment-text').value.trim().length > 0;
+            document.getElementById('post-comment').disabled = !(hasText && commentVerified);
+        }
+
+        document.getElementById('post-comment').addEventListener('click', function() {
+            const statusEl = document.getElementById('comment-status');
+            statusEl.style.display = 'block';
+            
+            if (commentVerified) {
+                const comment = document.getElementById('comment-text').value;
+                statusEl.className = 'status-message success';
+                statusEl.textContent = `✓ Comment posted: "${comment.substring(0, 50)}${comment.length > 50 ? '...' : ''}"`;
+                document.getElementById('comment-text').value = '';
+                commentCaptcha.reset();
+                commentVerified = false;
+                updateCommentButton();
+            }
+        });
+
+        // Multiple CAPTCHAs example
+        for (let i = 1; i <= 3; i++) {
+            const multiCaptcha = QuickCaptcha.get(`quickcaptcha-${i + 3}`);
+            if (multiCaptcha) {
+                multiCaptcha.onVerify(function(isVerified) {
+                    const statusEl = document.getElementById(`multi-status-${i}`);
+                    statusEl.style.display = 'block';
+                    if (isVerified) {
+                        statusEl.className = 'status-message success';
+                        statusEl.textContent = `✓ CAPTCHA ${i} verified!`;
+                    } else {
+                        statusEl.className = 'status-message error';
+                        statusEl.textContent = `✗ CAPTCHA ${i} failed`;
+                    }
+                });
+            }
+        }
+
+        // Analytics example
+        const analyticsCaptcha = QuickCaptcha.get('analytics-captcha');
+        if (analyticsCaptcha) {
+            analyticsCaptcha.onAnalytics(function(data) {
+                const analyticsEl = document.getElementById('analytics-data');
+                analyticsEl.innerHTML = `
+                    <div class="analytics-item"><strong>Success:</strong> ${data.success}</div>
+                    <div class="analytics-item"><strong>Attempts:</strong> ${data.attempts}</div>
+                    <div class="analytics-item"><strong>Challenge Type:</strong> ${data.challengeType}</div>
+                    <div class="analytics-item"><strong>Timestamp:</strong> ${new Date(data.timestamp).toLocaleString()}</div>
+                `;
+            });
+
+            analyticsCaptcha.onVerify(function(isVerified) {
+                const analyticsEl = document.getElementById('analytics-data');
+                const finalResult = document.createElement('div');
+                finalResult.className = 'analytics-item';
+                finalResult.innerHTML = `<strong>Final Result:</strong> ${isVerified ? 'Success' : 'Failed'}`;
+                analyticsEl.appendChild(finalResult);
+            });
+        }
+
+        // Reset example
+        function resetCaptcha() {
+            const resetCaptcha = QuickCaptcha.get('reset-captcha');
+            if (resetCaptcha) {
+                resetCaptcha.reset();
+            }
+        }
+
+        // Programmatic creation example
+        let programmaticCaptcha = null;
+        function createProgrammaticCaptcha() {
+            const container = document.getElementById('programmatic-container');
+            container.innerHTML = ''; // Clear existing
+            
+            programmaticCaptcha = QuickCaptcha.create(container, {
+                theme: 'dark',
+                size: 'normal',
+                language: 'en',
+                challengeType: 'math'
+            });
+
+            programmaticCaptcha.onVerify(function(isVerified) {
+                alert('Programmatic CAPTCHA verification: ' + (isVerified ? 'Success' : 'Failed'));
+            });
+        }
+
+        // Initialize all captchas
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('QuickCaptcha Demo loaded successfully');
+            console.log('Total CAPTCHA instances:', QuickCaptcha.instances.size);
+        });
+    </script>
+</body>
+</html>
