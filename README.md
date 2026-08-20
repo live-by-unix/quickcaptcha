@@ -21,7 +21,7 @@ A fully client-side, embeddable CAPTCHA widget that provides secure verification
 Add the following script tag to your HTML, ideally before the closing `</body>` tag:
 
 ```html
-<script src="https://cdn.example.com/quickcaptcha.min.js"></script>
+<script src="https://quickcaptcha.pages.dev/quickcaptcha.min.js"></script>
 ```
 
 ### Self-Hosted Installation
